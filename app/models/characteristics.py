@@ -1,6 +1,7 @@
 import enum
 from sqlalchemy import Column, Integer, Boolean, Enum
 from app.db import Base
+from app.models.crud_base import CrudBase
 
 
 class EnumSize(enum.Enum):
@@ -14,7 +15,7 @@ class EnumHair(enum.Enum):
     largo = 2
 
 
-class Characteristics(Base):
+class Characteristics(Base, CrudBase):
     __tablename__ = "characteristics"
 
     id = Column(Integer, primary_key=True)
@@ -23,4 +24,4 @@ class Characteristics(Base):
     behaviour = Column(Boolean)
     senior = Column(Boolean)
 
-    # services = Relationship("Service", back_populates="characteristics")
+    # treatments = Relationship("Treatment", back_populates="characteristics")

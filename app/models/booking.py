@@ -1,9 +1,10 @@
-from sqlalchemy import Column, Integer, String, DATETIME
+from sqlalchemy import Column, Integer, String, DateTime
 from app.db import Base
+from app.models.crud_base import CrudBase
 
 
-class Booking(Base):
-    __tablename__ = "site"
+class Booking(Base, CrudBase):
+    __tablename__ = "booking"
 
     id = Column(Integer, primary_key=True)
     name_dog = Column(String(100))
@@ -11,6 +12,6 @@ class Booking(Base):
     breed = Column(String(100))
     age = Column(Integer)
     observations = Column(String(100))
-    date = Column(DATETIME)
+    date = Column(DateTime)
 
-    # id_service = Column(Integer, ForeignKey("service.id"))
+    # id_treatment = Column(Integer, ForeignKey("treatment.id"))
