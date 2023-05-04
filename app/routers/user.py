@@ -5,6 +5,8 @@ from app.models.user import User
 from app.schemas.user import UserSchema, UserCreate
 from app.schemas.response import ResponseBase
 from app.exceptions import ErrorAlterItemDB, NotExistItemBD
+from app import authentication
+from app.schemas import token
 
 
 router = APIRouter(prefix="/user", tags=["user"], responses={404: {"description": "Not found"}})
@@ -32,6 +34,12 @@ async def create_user(new_user: UserCreate, db: Session = Depends(get_db)):
     except ErrorAlterItemDB as exc:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(exc))
     return user
+
+
+@router.post("/login")
+async def login_for_access_token(form_data: str):
+    access_token = authentication.generate_token(form_data.username, form_data.password)
+    return token.Token(access_token=access_token, token_type="bearer")
 
 
 @router.delete("/{id_user}", response_model=ResponseBase)
