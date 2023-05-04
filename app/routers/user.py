@@ -7,6 +7,8 @@ from app.schemas.response import ResponseBase
 from app.exceptions import ErrorAlterItemDB, NotExistItemBD
 from app import authentication
 from app.schemas import token
+from fastapi.security import OAuth2PasswordRequestForm
+from app.schemas.token import Token
 
 
 router = APIRouter(prefix="/user", tags=["user"], responses={404: {"description": "Not found"}})
@@ -18,10 +20,19 @@ async def get_all_users(db: Session = Depends(get_db)):
     return users
 
 
-@router.get("/{id_user}", response_model=UserSchema)
-async def get_user(id_user: int, db: Session = Depends(get_db)):
+@router.get("/id/{id_user}", response_model=UserSchema)
+async def get_user_id(id_user: int, db: Session = Depends(get_db)):
     try:
         user = await User.get_id(db=db, id=id_user)
+    except NotExistItemBD as exc:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(exc))
+    return user
+
+
+@router.get("/{name_user}", response_model=UserSchema)
+async def get_user_name(name_user: str, db: Session = Depends(get_db)):
+    try:
+        user = await User.get_name(db=db, name=name_user)
     except NotExistItemBD as exc:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(exc))
     return user
@@ -36,10 +47,10 @@ async def create_user(new_user: UserCreate, db: Session = Depends(get_db)):
     return user
 
 
-@router.post("/login")
-async def login_for_access_token(form_data: str):
+@router.post("/login", response_model=Token)
+async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends()):
     access_token = authentication.generate_token(form_data.username, form_data.password)
-    return token.Token(access_token=access_token, token_type="bearer")
+    return token.Token(access_token=str(access_token), token_type="bearer")
 
 
 @router.delete("/{id_user}", response_model=ResponseBase)
