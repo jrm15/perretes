@@ -15,7 +15,7 @@ class EnumHair(enum.Enum):
     largo = 2
 
 
-class Characteristics(Base, CrudBase):
+class Characteristic(Base, CrudBase):
     __tablename__ = "characteristics"
 
     id = Column(Integer, primary_key=True)
@@ -23,5 +23,3 @@ class Characteristics(Base, CrudBase):
     hair = Column(Enum(EnumHair))
     behaviour = Column(Boolean)
     senior = Column(Boolean)
-
-    # treatments = Relationship("Treatment", back_populates="characteristics")

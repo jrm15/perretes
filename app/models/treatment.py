@@ -10,6 +10,4 @@ class Treatment(Base, CrudBase):
     name = Column(String(100))
     duration = Column(Integer)
 
-    # id_characteristics = Column(Integer, ForeignKey("characteristics.id"))
-    # characteristics = Relationship("Characteristics", back_populates="treatment")
-    # bookings = Relationship("Booking", back_populates="treatment")
+    # id_characteristic = Column(Integer, ForeignKey("characteristic.id"))

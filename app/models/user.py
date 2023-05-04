@@ -4,7 +4,7 @@ from app.models.crud_base import CrudBase
 
 
 class User(Base, CrudBase):
-    __tablename__ = "site"
+    __tablename__ = "user"
 
     id = Column(Integer, primary_key=True)
     name = Column(String(100))
