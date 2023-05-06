@@ -6,7 +6,6 @@ from app.schemas.user import UserSchema, UserCreate
 from app.schemas.response import ResponseBase
 from app.exceptions import ErrorAlterItemDB, NotExistItemBD
 from app import authentication
-from app.schemas import token
 from fastapi.security import OAuth2PasswordRequestForm
 from app.schemas.token import Token
 
@@ -49,8 +48,9 @@ async def create_user(new_user: UserCreate, db: Session = Depends(get_db)):
 
 @router.post("/login", response_model=Token)
 async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends()):
-    access_token = authentication.generate_token(form_data.username, form_data.password)
-    return token.Token(access_token=str(access_token), token_type="bearer")
+    access_token = await authentication.generate_token(form_data.username, form_data.password)
+    print(f"FORM DATA:{form_data.password}")
+    return Token(access_token=str(access_token), token_type="bearer")
 
 
 @router.delete("/{id_user}", response_model=ResponseBase)

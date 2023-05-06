@@ -1,4 +1,5 @@
 from datetime import datetime, timedelta
+from typing import Optional
 
 from fastapi import HTTPException, status, Depends
 
@@ -21,7 +22,7 @@ settings = Settings()
 SECRET_KEY = settings.secret_key
 ALGORITHM = "HS256"
 # ACCESS_TOKEN_EXPIRE_MINUTES = Settings.token_expire
-ACCESS_TOKEN_EXPIRE_MINUTES = os.getenv('ACCESS_TOKEN_EXPIRE_MINUTES')
+ACCESS_TOKEN_EXPIRE_MINUTES = 1440
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="api/user/login")
@@ -35,14 +36,15 @@ def get_password_hash(password):
     return pwd_context.hash(password)
 
 
-async def get_user(username: str):
-    db = Depends(get_db)
-    item = User.get_name(name=username, db=db)
+async def get_user(name: str):
+    db = get_db()
+    item = await User.get_name(name=name, db=db)
     return item
 
 
-def authenticate_user(username: str, password: str):
-    user = get_user(username)
+async def authenticate_user(name: str, password: str):
+    user = await get_user(name=name)
+    print(f"USER: {user}")
     if not user:
         return False
     # if not verify_password(password, user.password):
@@ -50,23 +52,28 @@ def authenticate_user(username: str, password: str):
     return user
 
 
-def create_access_token(data: dict):
-    to_encode = data.copy()
-    expire = datetime.utcnow() + timedelta(minutes=15)
-    to_encode.update({"exp": expire})
-    encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
+async def create_access_token(data: dict, expires_delta: Optional[timedelta] = None):
+    to_encode = await data.copy()
+    if expires_delta:
+        expire = datetime.utcnow() + expires_delta
+    else:
+        expire = datetime.utcnow() + timedelta(minutes=15)
+    await to_encode.update({"exp": expire})
+    encoded_jwt = await jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
+    print(f"ENCONDED JWT: {encoded_jwt}")
     return encoded_jwt
 
 
-async def generate_token(username, password):
-    user = authenticate_user(username, password)
+async def generate_token(name, password):
+    user = await authenticate_user(name, password)
+    print(user)
     if not user:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Incorrect email/username or password",
         )
-    access_token_expires = ACCESS_TOKEN_EXPIRE_MINUTES
-    return create_access_token(
+    access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+    return await create_access_token(
         data={"sub": user.name}, expires_delta=access_token_expires
     )
 
