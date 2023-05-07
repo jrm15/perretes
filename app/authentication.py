@@ -6,9 +6,9 @@ from fastapi import HTTPException, status, Depends
 from jose import JWTError, jwt
 from passlib.context import CryptContext
 
-from app.db import get_db
+from sqlalchemy.orm import Session
 
-import os
+
 from app.schemas.token import TokenData
 from app.settings import Settings
 
@@ -36,14 +36,13 @@ def get_password_hash(password):
     return pwd_context.hash(password)
 
 
-async def get_user(name: str):
-    db = get_db()
+async def get_user(name: str, db: Session):
     item = await User.get_name(name=name, db=db)
     return item
 
 
-async def authenticate_user(name: str, password: str):
-    user = await get_user(name=name)
+def authenticate_user(name: str, password: str, db):
+    user = get_user(name=name, db=db)
     print(f"USER: {user}")
     if not user:
         return False
@@ -52,20 +51,20 @@ async def authenticate_user(name: str, password: str):
     return user
 
 
-async def create_access_token(data: dict, expires_delta: Optional[timedelta] = None):
-    to_encode = await data.copy()
+def create_access_token(data: dict, expires_delta: Optional[timedelta] = None):
+    to_encode = data.copy()
     if expires_delta:
         expire = datetime.utcnow() + expires_delta
     else:
         expire = datetime.utcnow() + timedelta(minutes=15)
-    await to_encode.update({"exp": expire})
-    encoded_jwt = await jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
+    to_encode.update({"exp": expire})
+    encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
     print(f"ENCONDED JWT: {encoded_jwt}")
     return encoded_jwt
 
 
-async def generate_token(name, password):
-    user = await authenticate_user(name, password)
+def generate_token(name, password, db):
+    user = authenticate_user(name, password, db)
     print(user)
     if not user:
         raise HTTPException(
@@ -73,7 +72,7 @@ async def generate_token(name, password):
             detail="Incorrect email/username or password",
         )
     access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
-    return await create_access_token(
+    return create_access_token(
         data={"sub": user.name}, expires_delta=access_token_expires
     )
 
