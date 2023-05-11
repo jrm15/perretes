@@ -1,5 +1,5 @@
 from pydantic import BaseModel
-from app.models.characteristic import EnumSize, EnumHair
+from api.models.characteristic import EnumSize, EnumHair
 
 
 class CharacteristicBase(BaseModel):

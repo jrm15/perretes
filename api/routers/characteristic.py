@@ -1,10 +1,10 @@
 from fastapi import APIRouter, Depends, HTTPException, status
-from app.db import get_db
+from api.db import get_db
 from sqlalchemy.orm import Session
-from app.models.characteristic import Characteristic
-from app.schemas.characteristic import CharacteristicSchema, CharacteristicCreate
-from app.schemas.response import ResponseBase
-from app.exceptions import ErrorAlterItemDB, NotExistItemBD
+from api.models.characteristic import Characteristic
+from api.schemas.characteristic import CharacteristicSchema, CharacteristicCreate
+from api.schemas.response import ResponseBase
+from api.exceptions import ErrorAlterItemDB, NotExistItemBD
 
 
 router = APIRouter(prefix="/characteristic", tags=["characteristic"], responses={404: {"description": "Not found"}})

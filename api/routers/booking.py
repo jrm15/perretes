@@ -1,10 +1,10 @@
 from fastapi import APIRouter, Depends, HTTPException, status
-from app.db import get_db
+from api.db import get_db
 from sqlalchemy.orm import Session
-from app.models.booking import Booking
-from app.schemas.booking import BookingSchema, BookingCreate
-from app.schemas.response import ResponseBase
-from app.exceptions import ErrorAlterItemDB, NotExistItemBD
+from api.models.booking import Booking
+from api.schemas.booking import BookingSchema, BookingCreate
+from api.schemas.response import ResponseBase
+from api.exceptions import ErrorAlterItemDB, NotExistItemBD
 
 
 router = APIRouter(prefix="/booking", tags=["booking"], responses={404: {"description": "Not found"}})

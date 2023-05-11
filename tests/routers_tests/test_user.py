@@ -1,8 +1,8 @@
 from unittest import TestCase
 from unittest.mock import patch
-from app.exceptions import NotExistItemBD, ErrorAlterItemDB
+from api.exceptions import NotExistItemBD, ErrorAlterItemDB
 from fastapi.testclient import TestClient
-from app.models.user import User
+from api.models.user import User
 import os
 
 
@@ -10,11 +10,11 @@ class TestSite(TestCase):
     @classmethod
     def setUpClass(cls) -> None:
         os.environ["MODE"] = "TEST"
-        from app.main import app
+        from api.main import app
 
         cls.client = TestClient(app)
 
-    @patch("app.models.user.User.get_all")
+    @patch("api.models.user.User.get_all")
     def test_get_all_users(self, mock_get_all):
         mock_get_all.return_value = [
             User(
@@ -47,7 +47,7 @@ class TestSite(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(mock_get_all.call_count, 1)
 
-    @patch("app.models.user.User.get_id")
+    @patch("api.models.user.User.get_id")
     def test_get_user(self, mock_get_user):
         mock_get_user.return_value = User(
             id=1,
@@ -66,7 +66,7 @@ class TestSite(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(mock_get_user.call_count, 1)
 
-    @patch("app.models.user.User.get_id")
+    @patch("api.models.user.User.get_id")
     def test_get_user_error_item_bd(self, mock_get_user):
         mock_get_user.side_effect = NotExistItemBD("Site 1 not found")
         expected = {"detail": "Not Found"}

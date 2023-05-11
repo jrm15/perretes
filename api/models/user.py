@@ -1,8 +1,8 @@
 from sqlalchemy import Column, Integer, String
-from app.db import Base
-from app.models.crud_base import CrudBase
+from api.db import Base
+from api.models.crud_base import CrudBase
 from sqlalchemy.orm import Session
-from app.exceptions import NotExistItemBD
+from api.exceptions import NotExistItemBD
 
 
 class User(Base, CrudBase):

@@ -1,5 +1,5 @@
 from unittest import TestCase
-from app.authentication import create_access_token, get_user
+from api.authentication import create_access_token, get_user
 
 
 class TestAuthentication(TestCase):

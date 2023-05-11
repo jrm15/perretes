@@ -1,5 +1,5 @@
 from sqlalchemy.orm import Session
-from app.exceptions import NotExistItemBD, ErrorAlterItemDB
+from api.exceptions import NotExistItemBD, ErrorAlterItemDB
 from sqlalchemy.orm.exc import UnmappedInstanceError
 
 

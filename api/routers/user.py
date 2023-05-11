@@ -1,17 +1,19 @@
 from fastapi import APIRouter, Depends, HTTPException, status
-from app.db import get_db
+from api.db import get_db
 from sqlalchemy.orm import Session
-from app.models.user import User
-from app.schemas.user import UserSchema, UserCreate
-from app.schemas.response import ResponseBase
-from app.exceptions import ErrorAlterItemDB, NotExistItemBD
-from app import authentication
+from api.models.user import User
+from api.schemas.user import UserSchema, UserCreate
+from api.schemas.response import ResponseBase
+from api.exceptions import ErrorAlterItemDB, NotExistItemBD
+from api import authentication
 from fastapi.security import OAuth2PasswordRequestForm
-from app.schemas.token import Token
+from api.schemas.token import Token
+from datetime import timedelta
 
 
 router = APIRouter(prefix="/user", tags=["user"], responses={404: {"description": "Not found"}})
 
+ACCESS_TOKEN_EXPIRE_MINUTES = 1440
 
 @router.get("", response_model=list[UserSchema])
 async def get_all_users(db: Session = Depends(get_db)):
@@ -49,8 +51,11 @@ async def create_user(new_user: UserCreate, db: Session = Depends(get_db)):
 @router.post("/login", response_model=Token)
 async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(),
                                  db: Session = Depends(get_db)):
-    access_token = await authentication.generate_token(form_data.username, form_data.password, db=db)
-    return Token(access_token=str(access_token), token_type="bearer")
+    access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+
+    user = await authentication.authenticate_user(name=form_data.username, password=form_data.password, db=db)
+    token = authentication.create_access_token(data={"sub": user.name}, expires_delta=access_token_expires)
+    return Token(access_token=str(token), token_type="bearer")
 
 
 @router.delete("/{id_user}", response_model=ResponseBase)

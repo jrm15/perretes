@@ -9,12 +9,12 @@ from passlib.context import CryptContext
 from sqlalchemy.orm import Session
 
 
-from app.schemas.token import TokenData
-from app.settings import Settings
+from api.schemas.token import TokenData
+from api.settings import Settings
 
 from fastapi.security import OAuth2PasswordBearer
 
-from app.models.user import User
+from api.models.user import User
 
 settings = Settings()
 
@@ -28,17 +28,15 @@ pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="api/user/login")
 
 
+# def get_password_hash(password):
+#     return pwd_context.hash(password)
+
 def verify_password(plain_password, password):
     return pwd_context.verify(plain_password, password)
 
 
-def get_password_hash(password):
-    return pwd_context.hash(password)
-
-
 async def authenticate_user(name: str, password: str, db) -> User:
     user = await User.get_name(name=name, db=db)
-    print(f"USER: {user}")
     if not user:
         return False
     # if not verify_password(password, user.password):
@@ -54,23 +52,7 @@ def create_access_token(data: dict, expires_delta: Optional[timedelta] = None):
         expire = datetime.utcnow() + timedelta(minutes=15)
     to_encode.update({"exp": expire})
     encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
-    print(f"ENCONDED JWT: {encoded_jwt}")
     return encoded_jwt
-
-
-async def generate_token(name, password, db):
-    user = await authenticate_user(name, password, db)
-    print(user)
-    if not user:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Incorrect email/username or password",
-        )
-    access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
-    token = create_access_token(
-        data={"sub": user.name}, expires_delta=access_token_expires
-    )
-    return token
 
 
 # async def get_current_user(token: str = Depends(oauth2_scheme)):

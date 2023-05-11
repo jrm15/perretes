@@ -1,10 +1,10 @@
 from fastapi import APIRouter, Depends, HTTPException, status
-from app.db import get_db
+from api.db import get_db
 from sqlalchemy.orm import Session
-from app.models.treatment import Treatment
-from app.schemas.treatment import TreatmentSchema, TreatmentCreate
-from app.schemas.response import ResponseBase
-from app.exceptions import ErrorAlterItemDB, NotExistItemBD
+from api.models.treatment import Treatment
+from api.schemas.treatment import TreatmentSchema, TreatmentCreate
+from api.schemas.response import ResponseBase
+from api.exceptions import ErrorAlterItemDB, NotExistItemBD
 
 
 router = APIRouter(prefix="/treatment", tags=["treatment"], responses={404: {"description": "Not found"}})
