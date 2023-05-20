@@ -5,19 +5,19 @@ from api.models.characteristic import Characteristic
 from api.schemas.characteristic import CharacteristicSchema, CharacteristicCreate
 from api.schemas.response import ResponseBase
 from api.exceptions import ErrorAlterItemDB, NotExistItemBD
-
+from api.authentication import verify_privilege
 
 router = APIRouter(prefix="/characteristic", tags=["characteristic"], responses={404: {"description": "Not found"}})
 
 
 @router.get("", response_model=list[CharacteristicSchema])
-async def get_all_characteristics(db: Session = Depends(get_db)):
+async def get_all_characteristics(db: Session = Depends(get_db), dependencies=Depends(verify_privilege)):
     characteristics = await Characteristic.get_all(db=db)
     return characteristics
 
 
 @router.get("/{id}", response_model=CharacteristicSchema)
-async def get_characteristics(id: int, db: Session = Depends(get_db)):
+async def get_characteristics(id: int, db: Session = Depends(get_db), dependencies=Depends(verify_privilege)):
     try:
         characteristic = await Characteristic.get_id(id=id, db=db)
     except NotExistItemBD as exc:
@@ -26,7 +26,8 @@ async def get_characteristics(id: int, db: Session = Depends(get_db)):
 
 
 @router.post("", response_model=CharacteristicSchema)
-async def create_characteristics(new_item: CharacteristicCreate, db: Session = Depends(get_db)):
+async def create_characteristics(new_item: CharacteristicCreate, db: Session = Depends(get_db),
+                                 dependencies=Depends(verify_privilege)):
     try:
         characteristic = await Characteristic.create(db=db, **new_item.dict())
     except ErrorAlterItemDB as exc:
@@ -35,7 +36,8 @@ async def create_characteristics(new_item: CharacteristicCreate, db: Session = D
 
 
 @router.delete("/{id}", response_model=ResponseBase)
-async def delete_characteristics(id: int, db: Session = Depends(get_db)):
+async def delete_characteristics(id: int, db: Session = Depends(get_db),
+                                 dependencies=Depends(verify_privilege)):
     try:
         await Characteristic.remove_id(db=db, id=id)
     except NotExistItemBD as exc:
@@ -44,7 +46,8 @@ async def delete_characteristics(id: int, db: Session = Depends(get_db)):
 
 
 @router.put("/{id}", response_model=CharacteristicSchema)
-async def update_characteristics(id: int, new_item: CharacteristicCreate, db: Session = Depends(get_db)):
+async def update_characteristics(id: int, new_item: CharacteristicCreate, db: Session = Depends(get_db),
+                                 dependencies=Depends(verify_privilege)):
     try:
         update_data = await Characteristic.update_id(db=db, id=id, data_change=new_item.dict())
     except (ErrorAlterItemDB, NotExistItemBD) as exc:

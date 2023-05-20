@@ -4,3 +4,4 @@ class NotExistItemBD(Exception):
 
 class ErrorAlterItemDB(Exception):
     pass
+

@@ -5,19 +5,20 @@ from api.models.booking import Booking
 from api.schemas.booking import BookingSchema, BookingCreate
 from api.schemas.response import ResponseBase
 from api.exceptions import ErrorAlterItemDB, NotExistItemBD
+from api.authentication import verify_privilege
 
 
 router = APIRouter(prefix="/booking", tags=["booking"], responses={404: {"description": "Not found"}})
 
 
 @router.get("", response_model=list[BookingSchema])
-async def get_all_characteristics(db: Session = Depends(get_db)):
+async def get_all_characteristics(db: Session = Depends(get_db), dependencies=Depends(verify_privilege)):
     bookings = await Booking.get_all(db=db)
     return bookings
 
 
 @router.get("/{id_booking}", response_model=BookingSchema)
-async def get_characteristics(id_booking: int, db: Session = Depends(get_db)):
+async def get_characteristics(id_booking: int, db: Session = Depends(get_db), dependencies=Depends(verify_privilege)):
     try:
         bookings = await Booking.get_id(id=id_booking, db=db)
     except NotExistItemBD as exc:
@@ -26,7 +27,8 @@ async def get_characteristics(id_booking: int, db: Session = Depends(get_db)):
 
 
 @router.post("", response_model=BookingSchema)
-async def create_characteristics(new_booking: BookingCreate, db: Session = Depends(get_db)):
+async def create_characteristics(new_booking: BookingCreate, db: Session = Depends(get_db),
+                                 dependencies=Depends(verify_privilege)):
     try:
         booking = await Booking.create(db=db, **new_booking.dict())
     except ErrorAlterItemDB as exc:
@@ -35,7 +37,8 @@ async def create_characteristics(new_booking: BookingCreate, db: Session = Depen
 
 
 @router.delete("/{id_booking}", response_model=ResponseBase)
-async def delete_characteristics(id_booking: int, db: Session = Depends(get_db)):
+async def delete_characteristics(id_booking: int, db: Session = Depends(get_db),
+                                 dependencies=Depends(verify_privilege)):
     try:
         await Booking.remove_id(db=db, id=id_booking)
     except NotExistItemBD as exc:
@@ -44,7 +47,8 @@ async def delete_characteristics(id_booking: int, db: Session = Depends(get_db))
 
 
 @router.put("/{id_booking}", response_model=BookingSchema)
-async def update_booking(id_booking: int, new_booking: BookingCreate, db: Session = Depends(get_db)):
+async def update_booking(id_booking: int, new_booking: BookingCreate, db: Session = Depends(get_db),
+                         dependencies=Depends(verify_privilege)):
     try:
         booking = await Booking.update_id(db=db, id=id_booking, data_change=new_booking.dict())
     except (ErrorAlterItemDB, NotExistItemBD) as exc:
