@@ -12,15 +12,12 @@
       </FullCalendar>
     </div>
   </div>
-  <ButtonNow />
-  <ModalClick v-show="showModal" />
-  <button @click="showModal = true">Show Modal</button>
+  <ModalClick v-show="showModal" @close-modal="showModal = false"/>
 </template>
 
 
 <script>
 import { defineComponent } from 'vue'
-import ButtonNow from "./components/ButtonNow.vue"
 import ModalClick from "./components/ModalClick.vue"
 import FullCalendar from '@fullcalendar/vue3'
 import dayGridPlugin from '@fullcalendar/daygrid'
@@ -32,7 +29,6 @@ import { INITIAL_EVENTS } from './event-utils'
 export default defineComponent({
   components: {
     FullCalendar,
-    ButtonNow,
     ModalClick,
   },
   data() {
