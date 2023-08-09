@@ -1,6 +1,6 @@
 <template>
     <div class="init">
-        <h6>BIENVENIDO AL CALENDARIO DE LA PERRUQUERIA PELO PICO PATA</h6>
+        <h6>BIENVENIDO AL CALENDARIO DE LA PERRUQUERIA PELO-PICO-PATA</h6>
           <div class="formulary">
   
             <input
